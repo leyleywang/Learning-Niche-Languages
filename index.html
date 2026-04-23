@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小众语种学习平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部导航栏 -->
+        <header class="top-nav">
+            <div class="logo">
+                <span class="memphis-dot"></span>
+                <h1>小众语种</h1>
+            </div>
+            <div class="user-actions">
+                <button class="notification-btn">
+                    <span class="memphis-square"></span>
+                    <span class="badge">3</span>
+                </button>
+                <div class="user-avatar">
+                    <span class="memphis-triangle"></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <main class="main-content">
+            <!-- 首页 -->
+            <section id="home-page" class="page active">
+                <div class="page-header">
+                    <h2>探索语言文化</h2>
+                    <p>发现全球小众语种的魅力</p>
+                </div>
+                
+                <!-- 活动分类标签 -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-filter="all">全部活动</button>
+                    <button class="filter-tab" data-filter="upcoming">未开始</button>
+                    <button class="filter-tab" data-filter="ended">已结束</button>
+                </div>
+
+                <!-- 活动列表 -->
+                <div class="events-list">
+                    <!-- 活动卡片将通过JS动态生成 -->
+                </div>
+            </section>
+
+            <!-- 语种学习页面 -->
+            <section id="languages-page" class="page">
+                <div class="page-header">
+                    <h2>语种学习</h2>
+                    <p>系统学习小众语种，开启文化之旅</p>
+                </div>
+
+                <!-- 语种选择 -->
+                <div class="language-selector">
+                    <h3>选择语种</h3>
+                    <div class="language-cards">
+                        <!-- 语种卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 学习内容区域 -->
+                <div class="learning-content" style="display: none;">
+                    <div class="learning-tabs">
+                        <button class="learning-tab active" data-tab="courses">课程</button>
+                        <button class="learning-tab" data-tab="exercises">练习</button>
+                        <button class="learning-tab" data-tab="plan">学习计划</button>
+                    </div>
+
+                    <div class="tab-content">
+                        <!-- 课程内容 -->
+                        <div id="courses-tab" class="tab-panel active">
+                            <div class="courses-list">
+                                <!-- 课程列表将通过JS动态生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 练习内容 -->
+                        <div id="exercises-tab" class="tab-panel">
+                            <div class="exercises-grid">
+                                <!-- 练习项目将通过JS动态生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 学习计划 -->
+                        <div id="plan-tab" class="tab-panel">
+                            <div class="learning-plan">
+                                <!-- 学习计划将通过JS动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 母语交流页面 -->
+            <section id="native-page" class="page">
+                <div class="page-header">
+                    <h2>母语交流</h2>
+                    <p>与母语者一对一交流，提升口语能力</p>
+                </div>
+
+                <!-- 主题选择 -->
+                <div class="topic-selector">
+                    <h3>选择交流主题</h3>
+                    <div class="topic-buttons">
+                        <button class="topic-btn active" data-topic="daily">日常</button>
+                        <button class="topic-btn" data-topic="work">职场</button>
+                        <button class="topic-btn" data-topic="culture">文化</button>
+                    </div>
+                </div>
+
+                <!-- 母语者列表 -->
+                <div class="native-speakers">
+                    <h3>可用母语者</h3>
+                    <div class="speakers-list">
+                        <!-- 母语者卡片将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 聊天界面（默认隐藏） -->
+                <div class="chat-interface" style="display: none;">
+                    <div class="chat-header">
+                        <div class="chat-partner">
+                            <div class="partner-avatar"></div>
+                            <div class="partner-info">
+                                <h4></h4>
+                                <span class="online-status">在线</span>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="call-btn voice-call">
+                                <span class="memphis-circle"></span>
+                            </button>
+                            <button class="call-btn video-call">
+                                <span class="memphis-triangle"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chat-messages">
+                        <!-- 聊天消息将通过JS动态生成 -->
+                    </div>
+                    <div class="chat-input-area">
+                        <div class="translation-toggle">
+                            <label>
+                                <input type="checkbox" id="translation-toggle">
+                                <span>实时翻译</span>
+                            </label>
+                        </div>
+                        <div class="input-wrapper">
+                            <input type="text" id="message-input" placeholder="输入消息...">
+                            <button id="send-btn">发送</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 我的页面 -->
+            <section id="profile-page" class="page">
+                <div class="page-header">
+                    <h2>我的</h2>
+                    <p>查看学习进度和个人资料</p>
+                </div>
+
+                <!-- 用户信息 -->
+                <div class="user-profile">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            <span class="memphis-circle-large"></span>
+                        </div>
+                        <div class="profile-info">
+                            <h3>学习者</h3>
+                            <p>已学习 3 种语言</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习进度 -->
+                <div class="learning-progress">
+                    <h3>学习进度</h3>
+                    <div class="progress-list">
+                        <!-- 进度项将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 交流记录 -->
+                <div class="chat-history">
+                    <h3>交流记录</h3>
+                    <div class="history-list">
+                        <!-- 历史记录将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 学习资料 -->
+                <div class="learning-materials">
+                    <h3>学习资料</h3>
+                    <div class="materials-tabs">
+                        <button class="material-tab active" data-material="textbooks">教材</button>
+                        <button class="material-tab" data-material="audio">听力素材</button>
+                        <button class="material-tab" data-material="culture">文化科普</button>
+                    </div>
+                    <div class="materials-content">
+                        <!-- 资料列表将通过JS动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 学习提醒 -->
+                <div class="learning-reminders">
+                    <h3>学习提醒</h3>
+                    <div class="reminders-list">
+                        <!-- 提醒项将通过JS动态生成 -->
+                    </div>
+                    <button class="add-reminder-btn">+ 添加提醒</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部导航菜单 -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-page="home">
+                <span class="nav-icon">
+                    <span class="memphis-dot"></span>
+                </span>
+                <span class="nav-label">首页</span>
+            </button>
+            <button class="nav-item" data-page="languages">
+                <span class="nav-icon">
+                    <span class="memphis-square"></span>
+                </span>
+                <span class="nav-label">语种</span>
+            </button>
+            <button class="nav-item" data-page="native">
+                <span class="nav-icon">
+                    <span class="memphis-triangle"></span>
+                </span>
+                <span class="nav-label">母语</span>
+            </button>
+            <button class="nav-item" data-page="profile">
+                <span class="nav-icon">
+                    <span class="memphis-circle"></span>
+                </span>
+                <span class="nav-label">我的</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- 模态框（用于活动详情等） -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title"></h3>
+                <button id="close-modal">×</button>
+            </div>
+            <div id="modal-body">
+                <!-- 模态框内容将通过JS动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
