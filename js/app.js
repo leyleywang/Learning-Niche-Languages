@@ -4,14 +4,37 @@
 
     // 数据存储
     const appData = {
-        // 活动图片URL
+        // 活动图片配置 - 使用快速CDN图片服务
         eventImages: {
-            norwegian: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Norwegian%20aurora%20borealis%20northern%20lights%20cultural%20event%20with%20traditional%20Norwegian%20decorations%20warm%20cozy%20atmosphere&image_size=landscape_16_9',
-            czech: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Czech%20beer%20garden%20traditional%20pub%20atmosphere%20with%20wooden%20tables%20beer%20mugs%20cozy%20warm%20lighting&image_size=landscape_16_9',
-            hebrew: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ancient%20Hebrew%20culture%20traditional%20Jerusalem%20scene%20with%20stone%20walls%20warm%20golden%20light%20historical%20atmosphere&image_size=landscape_16_9',
-            icelandic: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Icelandic%20aurora%20borealis%20magical%20green%20lights%20over%20snowy%20mountains%20mystical%20atmosphere&image_size=landscape_16_9',
-            finnish: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Traditional%20Finnish%20sauna%20wooden%20interior%20warm%20steam%20cozy%20relaxing%20atmosphere%20with%20birch%20branches&image_size=landscape_16_9'
+            norwegian: {
+                url: 'https://picsum.photos/seed/norwegian-aurora/800/450',
+                backupColor: '#6BA3FF',
+                gradient: 'linear-gradient(135deg, #6BA3FF 0%, #B56BFF 50%, #FF6B9D 100%)'
+            },
+            czech: {
+                url: 'https://picsum.photos/seed/czech-beer/800/450',
+                backupColor: '#FF6B9D',
+                gradient: 'linear-gradient(135deg, #FF6B9D 0%, #FFE156 50%, #FF9F6B 100%)'
+            },
+            hebrew: {
+                url: 'https://picsum.photos/seed/hebrew-history/800/450',
+                backupColor: '#FFE156',
+                gradient: 'linear-gradient(135deg, #FFE156 0%, #FF9F6B 50%, #6BFF8E 100%)'
+            },
+            icelandic: {
+                url: 'https://picsum.photos/seed/icelandic-aurora/800/450',
+                backupColor: '#6BFF8E',
+                gradient: 'linear-gradient(135deg, #6BFF8E 0%, #6BA3FF 50%, #B56BFF 100%)'
+            },
+            finnish: {
+                url: 'https://picsum.photos/seed/finnish-sauna/800/450',
+                backupColor: '#FF9F6B',
+                gradient: 'linear-gradient(135deg, #FF9F6B 0%, #FF6B9D 50%, #FFE156 100%)'
+            }
         },
+        
+        // 图片预加载缓存
+        imageCache: new Map(),
         
         // 活动数据
         events: [
@@ -602,6 +625,43 @@
         });
     }
 
+    // 图片预加载函数
+    function preloadImage(url) {
+        return new Promise((resolve, reject) => {
+            // 检查缓存
+            if (appData.imageCache.has(url)) {
+                resolve(appData.imageCache.get(url));
+                return;
+            }
+
+            const img = new Image();
+            img.onload = () => {
+                appData.imageCache.set(url, true);
+                resolve(true);
+            };
+            img.onerror = () => {
+                appData.imageCache.set(url, false);
+                reject(false);
+            };
+            img.src = url;
+        });
+    }
+
+    // 预加载活动图片
+    function preloadEventImages() {
+        // 只预加载首屏可见的活动图片
+        const events = appData.events.slice(0, 3); // 预加载前3个活动
+        events.forEach(event => {
+            const imageConfig = appData.eventImages[event.languageKey];
+            if (imageConfig && imageConfig.url) {
+                preloadImage(imageConfig.url).catch(() => {
+                    // 图片加载失败，使用渐变背景
+                    console.log('图片加载失败，使用渐变背景:', event.languageKey);
+                });
+            }
+        });
+    }
+
     // 渲染活动列表
     function renderEvents() {
         const eventsList = document.querySelector('.events-list');
@@ -625,15 +685,27 @@
                 registerBtn = `<button class="btn btn-primary" onclick="event.stopPropagation(); registerEvent(${event.id})">立即报名</button>`;
             }
 
-            // 获取活动图片URL
-            const imageUrl = appData.eventImages[event.languageKey] || '';
+            // 获取活动图片配置
+            const imageConfig = appData.eventImages[event.languageKey] || {
+                url: '',
+                backupColor: '#6BA3FF',
+                gradient: 'linear-gradient(135deg, #6BA3FF 0%, #B56BFF 50%, #FF6B9D 100%)'
+            };
+
+            // 检查图片是否已缓存
+            const isCached = appData.imageCache.get(imageConfig.url);
 
             return `
             <div class="event-card ${event.status}" data-event-id="${event.id}" onclick="viewEventDetail(${event.id})">
-                <div class="event-image" style="background-image: url('${imageUrl}');">
+                <div class="event-image event-image-loading" 
+                     data-image-url="${imageConfig.url}"
+                     data-gradient="${imageConfig.gradient}"
+                     data-language-key="${event.languageKey}"
+                     style="background: ${imageConfig.gradient};">
                     <span class="event-status ${event.status}">
                         ${event.status === 'upcoming' ? '未开始' : '已结束'}
                     </span>
+                    ${!isCached ? '<div class="image-loader"></div>' : ''}
                 </div>
                 <div class="event-content">
                     <span class="event-language">${event.language}</span>
@@ -650,6 +722,82 @@
                 </div>
             </div>
         `;}).join('');
+
+        // 异步加载图片（非阻塞）
+        setTimeout(() => {
+            loadEventImagesAsync();
+        }, 0);
+    }
+
+    // 异步加载活动图片
+    function loadEventImagesAsync() {
+        const eventImages = document.querySelectorAll('.event-image[data-image-url]');
+        
+        eventImages.forEach((imgElement, index) => {
+            const url = imgElement.dataset.imageUrl;
+            const gradient = imgElement.dataset.gradient;
+            const languageKey = imgElement.dataset.languageKey;
+
+            if (!url) return;
+
+            // 使用 IntersectionObserver 延迟加载视窗外的图片
+            const loadImage = () => {
+                // 检查缓存
+                if (appData.imageCache.get(url) === true) {
+                    // 图片已缓存，直接显示
+                    imgElement.style.backgroundImage = `url('${url}')`;
+                    imgElement.classList.remove('event-image-loading');
+                    const loader = imgElement.querySelector('.image-loader');
+                    if (loader) loader.remove();
+                    return;
+                }
+
+                if (appData.imageCache.get(url) === false) {
+                    // 图片加载失败，使用渐变背景
+                    return;
+                }
+
+                // 加载图片
+                preloadImage(url)
+                    .then(() => {
+                        // 图片加载成功
+                        imgElement.style.backgroundImage = `url('${url}')`;
+                        imgElement.classList.remove('event-image-loading');
+                    })
+                    .catch(() => {
+                        // 图片加载失败，保持渐变背景
+                        console.log('图片加载失败，保持渐变背景:', languageKey);
+                        imgElement.classList.remove('event-image-loading');
+                    })
+                    .finally(() => {
+                        // 移除加载器
+                        const loader = imgElement.querySelector('.image-loader');
+                        if (loader) {
+                            loader.style.opacity = '0';
+                            setTimeout(() => loader.remove(), 300);
+                        }
+                    });
+            };
+
+            // 前3张图片立即加载，其他使用 IntersectionObserver
+            if (index < 3) {
+                loadImage();
+            } else if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            loadImage();
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { rootMargin: '100px' });
+                
+                observer.observe(imgElement);
+            } else {
+                // 不支持 IntersectionObserver，直接加载
+                loadImage();
+            }
+        });
     }
 
     // 筛选活动
@@ -668,8 +816,33 @@
         const event = appData.events.find(e => e.id === eventId);
         if (!event) return;
 
-        // 获取活动图片URL
-        const imageUrl = appData.eventImages[event.languageKey] || '';
+        // 获取活动图片配置
+        const imageConfig = appData.eventImages[event.languageKey] || {
+            url: '',
+            gradient: 'linear-gradient(135deg, #6BA3FF 0%, #B56BFF 50%, #FF6B9D 100%)'
+        };
+
+        // 检查图片是否已缓存，如果没有则使用渐变作为备用
+        let backgroundStyle = '';
+        if (appData.imageCache.get(imageConfig.url) === true && imageConfig.url) {
+            backgroundStyle = `background-image: url('${imageConfig.url}');`;
+        } else {
+            // 优先使用渐变背景
+            backgroundStyle = `background: ${imageConfig.gradient};`;
+            
+            // 异步加载图片
+            if (imageConfig.url) {
+                preloadImage(imageConfig.url).then(() => {
+                    // 图片加载成功后更新
+                    const detailImage = document.querySelector('.event-detail-image');
+                    if (detailImage) {
+                        detailImage.style.background = `url('${imageConfig.url}') center/cover no-repeat`;
+                    }
+                }).catch(() => {
+                    // 加载失败，保持渐变背景
+                });
+            }
+        }
 
         // 获取报名按钮状态
         let registerBtn = '';
@@ -685,7 +858,7 @@
 
         elements.modalTitle.textContent = '活动详情';
         elements.modalBody.innerHTML = `
-            <div class="event-detail-image" style="background-image: url('${imageUrl}');"></div>
+            <div class="event-detail-image" style="${backgroundStyle}"></div>
             <h3 class="event-detail-title">${event.title}</h3>
             <div class="event-detail-meta">
                 <span class="event-detail-tag">${event.language}</span>
