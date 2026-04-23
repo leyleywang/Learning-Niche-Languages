@@ -123,6 +123,9 @@
                 <!-- 聊天界面（默认隐藏） -->
                 <div class="chat-interface" style="display: none;">
                     <div class="chat-header">
+                        <button class="chat-back-btn" id="chat-back-btn">
+                            ← 返回
+                        </button>
                         <div class="chat-partner">
                             <div class="partner-avatar"></div>
                             <div class="partner-info">
@@ -246,7 +249,7 @@
         </nav>
     </div>
 
-    <!-- 模态框（用于活动详情等） -->
+    <!-- 通用模态框（用于活动详情等） -->
     <div id="modal" class="modal" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -256,6 +259,38 @@
             <div id="modal-body">
                 <!-- 模态框内容将通过JS动态生成 -->
             </div>
+        </div>
+    </div>
+
+    <!-- 添加提醒模态框 -->
+    <div id="add-reminder-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>添加学习提醒</h3>
+                <button id="close-reminder-modal">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="reminder-title">提醒标题</label>
+                    <input type="text" id="reminder-title" placeholder="例如：挪威语学习">
+                </div>
+                <div class="form-group">
+                    <label for="reminder-time">提醒时间</label>
+                    <input type="text" id="reminder-time" placeholder="例如：每天 20:00">
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" id="cancel-reminder">取消</button>
+                    <button class="btn btn-primary" id="save-reminder">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自定义提示框 -->
+    <div id="toast" class="toast" style="display: none;">
+        <div class="toast-content">
+            <span class="toast-icon">✓</span>
+            <span class="toast-message" id="toast-message"></span>
         </div>
     </div>
 
