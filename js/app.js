@@ -4,67 +4,86 @@
 
     // 数据存储
     const appData = {
+        // 活动图片URL
+        eventImages: {
+            norwegian: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Norwegian%20aurora%20borealis%20northern%20lights%20cultural%20event%20with%20traditional%20Norwegian%20decorations%20warm%20cozy%20atmosphere&image_size=landscape_16_9',
+            czech: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Czech%20beer%20garden%20traditional%20pub%20atmosphere%20with%20wooden%20tables%20beer%20mugs%20cozy%20warm%20lighting&image_size=landscape_16_9',
+            hebrew: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Ancient%20Hebrew%20culture%20traditional%20Jerusalem%20scene%20with%20stone%20walls%20warm%20golden%20light%20historical%20atmosphere&image_size=landscape_16_9',
+            icelandic: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Icelandic%20aurora%20borealis%20magical%20green%20lights%20over%20snowy%20mountains%20mystical%20atmosphere&image_size=landscape_16_9',
+            finnish: 'https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Traditional%20Finnish%20sauna%20wooden%20interior%20warm%20steam%20cozy%20relaxing%20atmosphere%20with%20birch%20branches&image_size=landscape_16_9'
+        },
+        
         // 活动数据
         events: [
             {
                 id: 1,
                 title: '挪威语文化体验沙龙',
                 language: '挪威语',
+                languageKey: 'norwegian',
                 description: '探索挪威的神秘北极光文化，学习基础问候语，品尝传统挪威美食。这是一个了解北欧文化的绝佳机会！',
                 date: '2026-05-15',
                 time: '19:00',
                 participants: 12,
                 maxParticipants: 20,
                 status: 'upcoming',
-                location: '上海市静安区南京西路1266号'
+                location: '上海市静安区南京西路1266号',
+                registered: false
             },
             {
                 id: 2,
                 title: '捷克语啤酒文化之旅',
                 language: '捷克语',
+                languageKey: 'czech',
                 description: '了解捷克啤酒文化，学习日常对话用语，体验正宗捷克啤酒品鉴。捷克是啤酒的故乡，不容错过！',
                 date: '2026-05-20',
                 time: '18:30',
                 participants: 8,
                 maxParticipants: 15,
                 status: 'upcoming',
-                location: '北京市朝阳区三里屯路19号'
+                location: '北京市朝阳区三里屯路19号',
+                registered: false
             },
             {
                 id: 3,
                 title: '希伯来语圣经文化分享会',
                 language: '希伯来语',
+                languageKey: 'hebrew',
                 description: '深入了解希伯来语的历史与文化，学习基础字母和发音，探索古老文明的语言魅力。',
                 date: '2026-05-10',
                 time: '14:00',
                 participants: 15,
                 maxParticipants: 15,
                 status: 'ended',
-                location: '深圳市南山区科技园路8号'
+                location: '深圳市南山区科技园路8号',
+                registered: true
             },
             {
                 id: 4,
                 title: '冰岛语极光故事分享',
                 language: '冰岛语',
+                languageKey: 'icelandic',
                 description: '聆听冰岛语母语者讲述极光传说，学习冰岛语基础词汇，感受北极圈的独特文化。',
                 date: '2026-05-25',
                 time: '20:00',
                 participants: 6,
                 maxParticipants: 12,
                 status: 'upcoming',
-                location: '广州市天河区珠江新城'
+                location: '广州市天河区珠江新城',
+                registered: false
             },
             {
                 id: 5,
                 title: '芬兰语桑拿文化体验',
                 language: '芬兰语',
+                languageKey: 'finnish',
                 description: '了解芬兰桑拿文化，学习芬兰语日常用语，体验正宗芬兰桑拿浴的放松之旅。',
                 date: '2026-05-08',
                 time: '15:00',
                 participants: 10,
                 maxParticipants: 10,
                 status: 'ended',
-                location: '杭州市西湖区文三路'
+                location: '杭州市西湖区文三路',
+                registered: true
             }
         ],
 
@@ -439,7 +458,19 @@
         messageInput: document.getElementById('message-input'),
         sendBtn: document.getElementById('send-btn'),
         chatInterface: document.querySelector('.chat-interface'),
-        speakersList: document.querySelector('.speakers-list')
+        speakersList: document.querySelector('.speakers-list'),
+        // 新增元素
+        chatBackBtn: document.getElementById('chat-back-btn'),
+        addReminderModal: document.getElementById('add-reminder-modal'),
+        closeReminderModal: document.getElementById('close-reminder-modal'),
+        cancelReminder: document.getElementById('cancel-reminder'),
+        saveReminder: document.getElementById('save-reminder'),
+        reminderTitle: document.getElementById('reminder-title'),
+        reminderTime: document.getElementById('reminder-time'),
+        addReminderBtn: document.querySelector('.add-reminder-btn'),
+        toast: document.getElementById('toast'),
+        toastMessage: document.getElementById('toast-message'),
+        languageSelector: document.querySelector('.language-selector')
     };
 
     // 初始化应用
@@ -452,6 +483,11 @@
         renderMaterials();
         renderReminders();
         bindEvents();
+        
+        // 给语种选择器添加紧凑样式
+        if (elements.languageSelector) {
+            elements.languageSelector.classList.add('compact');
+        }
     }
 
     // 绑定事件
@@ -523,6 +559,32 @@
                 }
             });
         }
+
+        // 聊天返回按钮
+        if (elements.chatBackBtn) {
+            elements.chatBackBtn.addEventListener('click', closeChatInterface);
+        }
+
+        // 添加提醒相关事件
+        if (elements.addReminderBtn) {
+            elements.addReminderBtn.addEventListener('click', openAddReminderModal);
+        }
+        if (elements.closeReminderModal) {
+            elements.closeReminderModal.addEventListener('click', closeAddReminderModal);
+        }
+        if (elements.cancelReminder) {
+            elements.cancelReminder.addEventListener('click', closeAddReminderModal);
+        }
+        if (elements.saveReminder) {
+            elements.saveReminder.addEventListener('click', saveNewReminder);
+        }
+        if (elements.addReminderModal) {
+            elements.addReminderModal.addEventListener('click', (e) => {
+                if (e.target === elements.addReminderModal) {
+                    closeAddReminderModal();
+                }
+            });
+        }
     }
 
     // 页面导航
@@ -550,9 +612,25 @@
             filteredEvents = appData.events.filter(e => e.status === currentState.currentFilter);
         }
 
-        eventsList.innerHTML = filteredEvents.map(event => `
-            <div class="event-card ${event.status}" data-event-id="${event.id}">
-                <div class="event-image">
+        eventsList.innerHTML = filteredEvents.map(event => {
+            // 获取报名按钮状态
+            let registerBtn = '';
+            if (event.status === 'ended') {
+                registerBtn = `<button class="btn btn-primary" disabled>活动已结束</button>`;
+            } else if (event.registered) {
+                registerBtn = `<button class="btn btn-primary btn-registered" disabled>已报名</button>`;
+            } else if (event.participants >= event.maxParticipants) {
+                registerBtn = `<button class="btn btn-primary" disabled>名额已满</button>`;
+            } else {
+                registerBtn = `<button class="btn btn-primary" onclick="event.stopPropagation(); registerEvent(${event.id})">立即报名</button>`;
+            }
+
+            // 获取活动图片URL
+            const imageUrl = appData.eventImages[event.languageKey] || '';
+
+            return `
+            <div class="event-card ${event.status}" data-event-id="${event.id}" onclick="viewEventDetail(${event.id})">
+                <div class="event-image" style="background-image: url('${imageUrl}');">
                     <span class="event-status ${event.status}">
                         ${event.status === 'upcoming' ? '未开始' : '已结束'}
                     </span>
@@ -565,16 +643,13 @@
                         <span class="event-date">📅 ${event.date} ${event.time}</span>
                         <span class="event-participants">👥 ${event.participants}/${event.maxParticipants}人</span>
                     </div>
-                    <div class="event-actions">
+                    <div class="event-actions" onclick="event.stopPropagation();">
                         <button class="btn btn-secondary" onclick="viewEventDetail(${event.id})">查看详情</button>
-                        ${event.status === 'upcoming' && event.participants < event.maxParticipants ? 
-                            `<button class="btn btn-primary" onclick="registerEvent(${event.id})">立即报名</button>` :
-                            `<button class="btn btn-primary" disabled>名额已满</button>`
-                        }
+                        ${registerBtn}
                     </div>
                 </div>
             </div>
-        `).join('');
+        `;}).join('');
     }
 
     // 筛选活动
@@ -593,9 +668,24 @@
         const event = appData.events.find(e => e.id === eventId);
         if (!event) return;
 
+        // 获取活动图片URL
+        const imageUrl = appData.eventImages[event.languageKey] || '';
+
+        // 获取报名按钮状态
+        let registerBtn = '';
+        if (event.status === 'ended') {
+            registerBtn = `<button class="btn btn-primary" disabled>活动已结束</button>`;
+        } else if (event.registered) {
+            registerBtn = `<button class="btn btn-primary btn-registered" disabled>已报名</button>`;
+        } else if (event.participants >= event.maxParticipants) {
+            registerBtn = `<button class="btn btn-primary" disabled>名额已满</button>`;
+        } else {
+            registerBtn = `<button class="btn btn-primary" onclick="registerEvent(${event.id});">立即报名</button>`;
+        }
+
         elements.modalTitle.textContent = '活动详情';
         elements.modalBody.innerHTML = `
-            <div class="event-detail-image"></div>
+            <div class="event-detail-image" style="background-image: url('${imageUrl}');"></div>
             <h3 class="event-detail-title">${event.title}</h3>
             <div class="event-detail-meta">
                 <span class="event-detail-tag">${event.language}</span>
@@ -613,10 +703,7 @@
                 </div>
             </div>
             <div class="event-detail-actions">
-                ${event.status === 'upcoming' && event.participants < event.maxParticipants ? 
-                    `<button class="btn btn-primary" onclick="registerEvent(${event.id}); closeModalWindow();">立即报名</button>` :
-                    `<button class="btn btn-primary" disabled>名额已满</button>`
-                }
+                ${registerBtn}
                 <button class="btn btn-secondary" onclick="closeModalWindow()">关闭</button>
             </div>
         `;
@@ -627,11 +714,90 @@
     // 报名活动
     function registerEvent(eventId) {
         const event = appData.events.find(e => e.id === eventId);
-        if (event && event.participants < event.maxParticipants) {
+        if (event && !event.registered && event.participants < event.maxParticipants) {
             event.participants++;
+            event.registered = true;
             renderEvents();
-            alert('报名成功！我们会通过短信通知您活动详情。');
+            closeModalWindow();
+            showToast('报名成功！我们会通过短信通知您活动详情。', 'success');
+        } else if (event && event.registered) {
+            showToast('您已经报名过此活动了！', 'warning');
+        } else if (event && event.participants >= event.maxParticipants) {
+            showToast('报名失败，名额已满！', 'error');
         }
+    }
+
+    // 显示自定义提示框
+    function showToast(message, type = 'success') {
+        if (!elements.toast || !elements.toastMessage) return;
+
+        // 设置消息内容
+        elements.toastMessage.textContent = message;
+
+        // 设置类型样式
+        elements.toast.classList.remove('success', 'error', 'warning');
+        elements.toast.classList.add(type);
+
+        // 显示提示框
+        elements.toast.style.display = 'flex';
+        elements.toast.style.animation = 'toastIn var(--transition-medium)';
+
+        // 3秒后自动隐藏
+        setTimeout(() => {
+            elements.toast.style.animation = 'toastOut var(--transition-medium)';
+            setTimeout(() => {
+                elements.toast.style.display = 'none';
+            }, 400);
+        }, 3000);
+    }
+
+    // 关闭聊天界面
+    function closeChatInterface() {
+        if (elements.chatInterface) {
+            elements.chatInterface.style.display = 'none';
+        }
+    }
+
+    // 打开添加提醒模态框
+    function openAddReminderModal() {
+        if (elements.addReminderModal) {
+            // 清空表单
+            if (elements.reminderTitle) elements.reminderTitle.value = '';
+            if (elements.reminderTime) elements.reminderTime.value = '';
+            
+            elements.addReminderModal.style.display = 'flex';
+        }
+    }
+
+    // 关闭添加提醒模态框
+    function closeAddReminderModal() {
+        if (elements.addReminderModal) {
+            elements.addReminderModal.style.display = 'none';
+        }
+    }
+
+    // 保存新提醒
+    function saveNewReminder() {
+        const title = elements.reminderTitle ? elements.reminderTitle.value.trim() : '';
+        const time = elements.reminderTime ? elements.reminderTime.value.trim() : '';
+
+        if (!title || !time) {
+            showToast('请填写完整的提醒信息！', 'warning');
+            return;
+        }
+
+        // 创建新提醒
+        const newReminder = {
+            id: appData.reminders.length + 1,
+            title: title,
+            time: time,
+            enabled: true
+        };
+
+        appData.reminders.push(newReminder);
+        renderReminders();
+        closeAddReminderModal();
+        showToast('提醒添加成功！', 'success');
     }
 
     // 关闭模态框
